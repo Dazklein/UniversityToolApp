@@ -33,10 +33,11 @@ namespace StateApp.Controllers.api
 
         // POST api/<ApiFacultyController>
         [HttpPost]
-        public async void Post(Student student)
+        public async Task<ActionResult<Student>> Post(Student student)
         {
             await db.Students.AddAsync(student);
             await db.SaveChangesAsync();
+            return new ObjectResult(await db.Students.Include(g => g.Group).Where(x => x.StudentId == student.StudentId).FirstOrDefaultAsync());
         }
 
         // PUT api/<ApiFacultyController>/5
@@ -62,10 +63,32 @@ namespace StateApp.Controllers.api
     {
         ApplicationContext db = new ApplicationContext();
 
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<Group>>> Get()
         {
             IEnumerable<Group> groups = await db.Groups.ToListAsync();
             return new ObjectResult(groups);
+        }
+
+        [HttpPost]
+        public async void Post(Group group)
+        {
+            await db.Groups.AddAsync(group);
+            await db.SaveChangesAsync();
+        }
+
+        [HttpPut]
+        public async void Put(Group group)
+        {
+            db.Groups.Update(group);
+            await db.SaveChangesAsync();
+        }
+
+        [HttpDelete]
+        public async void Delete(Group group)
+        {
+            db.Groups.Remove(group);
+            await db.SaveChangesAsync();
         }
     }
 }

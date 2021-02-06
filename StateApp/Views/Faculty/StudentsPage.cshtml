@@ -1,5 +1,22 @@
 ﻿@section Scripts{ 
 <script>
+    var student = function () {
+        var self = this;
+
+        self.studentId = ko.observable();
+        self.lastName = ko.observable();
+        self.name = ko.observable();
+        self.middleName = ko.observable();
+        self.groupId = ko.observable();
+        self.group = ko.observable(function () {
+            this.groupId = ko.observable();
+            this.name = ko.observable();
+        });
+        self.phoneNumber = ko.observable();
+        self.email = ko.observable();
+        self.adress = ko.observable();
+    }
+
     var ViewModel = function () {
         var self = this;
 
@@ -7,7 +24,6 @@
         self.Groups = ko.observableArray([]);
 
         self.currentStudent = ko.observable(null);
-        self.currentGroup = ko.observable(null);
 
         getStudents();
         getGroups();
@@ -15,6 +31,11 @@
         self.openCard = function (student) {
             self.currentStudent(student);
             $("#cardStudentModal").modal('show');
+        }
+
+        self.createStudent = function () {
+            self.currentStudent(new student);
+            $("#editStudentModal").modal('show');
         }
 
         self.editStudent = function () {
@@ -39,37 +60,44 @@
                     contentType: "application/json; charset=utf-8",
                     success: function () {
                         self.Students.splice(self.Students.indexOf(student), 1);
+                        self.currentStudent(null);
+                        $("#cardStudentModal").modal('hide');
                     },
                     error: function () { alert("При удалении записи произошла ошибка...") }
                 });
             }
         }
 
-        //Добавляет студента, если его нет.
-        //Изменяет студента, если он есть
         self.saveChanges = function (student) {
-            for (var i = 0; i < Students.length; i++) {
-                if (student.studentId == Students[i].studentId) {
-                    $.ajax({
-                        url: "/Api/ApiStudent",
-                        method: "PUT",
-                        data: student,
-                        success: function () {
-                            var index = self.Students.indexOf(student);
-                            self.Students[index] = student;
-                        },
-                        error: function () { alert("Ошибка обновления записи...") }
-                    });
-                    return '';
-                }
+            // Редактирование записи, если она есть
+            if (self.currentStudent.studentId != undefined) {
+                $.ajax({
+                    url: "/Api/ApiStudent",
+                    method: "PUT",
+                    data: ko.toJSON(student),
+                    contentType: "application/json; charset=utf-8",
+                    success: function () {
+                        var index = self.Students.indexOf(student);
+                        self.Students[index] = student;
+                        $("#editStudentModal").modal('hide');
+                    },
+                    error: function () { alert("Ошибка обновления записи...") }
+                });
             }
-            $.ajax({
-                url: "/Api/ApiStudent",
-                method: "POST",
-                data: student,
-                success: self.Students.push(student),
-                error: function () { alert("Ошибка добавления записи...") }
-            });
+            else {
+                //Добавление записи
+                $.ajax({
+                    url: "/Api/ApiStudent",
+                    method: "POST",
+                    data: ko.toJSON(student),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        self.Students.push(data);
+                        $("#editStudentModal").modal('hide');
+                    },
+                    error: function () { alert("Ошибка добавления записи...") }
+                });
+            }
         }
         //Возвращает студентов
         function getStudents() {
@@ -79,8 +107,7 @@
                 success: function (data) {
                     self.Students(data);
                     console.log(data);
-                },
-                error: alert("Ошибка загрузки студентов")
+                }
             });
         }
 
@@ -91,8 +118,7 @@
                 method: "GET",
                 success: function (data) {
                     self.Groups(data);
-                },
-                error: alert("Ошибка загрузки групп")
+                }
             })
         }
     }
@@ -113,7 +139,7 @@
                     <th>Имя</th>
                     <th>Отчество</th>
                     <th>Группа</th>
-                    <th></th>
+                    <th><button class="btn btn-primary" data-bind="click: createStudent">Добавить запись</button></th>
                 </tr>
             </thead>
             <tbody data-bind="foreach: Students">
@@ -127,62 +153,6 @@
                 </tr>
             </tbody>
         </table>
-    </div>
-</div>
-
-<div id="editStudentModal" class="modal" tabindex="-1" role="dialog" data-bind="with: currentStudent">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-row">
-
-                    <div class="col-md-4">
-                        <label for="lname">Фамилия</label>
-                        <input type="text" id="lname" data-bind="" placeholder="Введите фамилию" />
-                    </div>
-                    <div class="col-md-4">
-                        <label for="name">Имя</label>
-                        <input type="text" id="name" data-bind="" placeholder="Введите имя" />
-                    </div>
-                    <div class="col-md-4">
-                        <label for="mname">Отчество</label>
-                        <input type="text" id="mname" data-bind="" placeholder="Введите отчество" />
-                    </div>
-                    <div class="form-group">
-                        <label>Группа</label>
-                        <select class="form-control">
-                            <option>Выберите группу</option>
-                            <!-- ko foreach: $root.Groups-->
-                            <option data-bind="text: name"></option>
-                            <!-- /ko -->
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">Номер телефона</label>
-                        <input type="text" id="phone" data-bind="" placeholder="Введите номер телефона" />
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="text" id="email" data-bind="" placeholder="Введите email" />
-                    </div>
-                    <div class="form-group">
-                        <label for="adress">Адрес</label>
-                        <input type="text" id="adress" data-bind="" placeholder="Введите адрес" />
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bind="click: $root.saveChanges">Сохранить</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -236,14 +206,56 @@
     </div>
 </div>
 
-<div id="deleteStudentModal" class="modal" tabindex="-1" role="dialog" data-bind="with: currentStudent">
-    <div class="modal-dialog modal-sm" role="document">
+<div id="editStudentModal" class="modal" tabindex="-1" role="dialog" data-bind="with: currentStudent">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактирование записи</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <div class="modal-body">
-                <p>Вы действительно хотите удалить <mark data-bind="text: studentId + '|' + lastName + ' ' + name + ' ' + middleName"></mark></p>
+                <div class="form-row">
+
+                    <div class="col-md-4">
+                        <label for="lname">Фамилия</label>
+                        <input class="form-control" type="text" id="lname" data-bind="value: lastName" placeholder="Введите фамилию" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="name">Имя</label>
+                        <input class="form-control" type="text" id="name" data-bind="value: name" placeholder="Введите имя" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="mname">Отчество</label>
+                        <input class="form-control" type="text" id="mname" data-bind="value: middleName" placeholder="Введите отчество" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Группа</label>
+                        <select class="form-control" data-bind="options: $root.Groups,
+                                                                optionsText: 'name',
+                                                                optionsValue: 'groupId',
+                                                                value: groupId,
+                                                                optionsCaption: 'Выберите группу...'"></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col-md-4">
+                        <label for="phone">Номер телефона</label>
+                        <input class="form-control" type="text" id="phone" data-bind="value: phoneNumber" placeholder="Введите номер телефона" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="email">Email</label>
+                        <input class="form-control" type="text" id="email" data-bind="value: email" placeholder="Введите email" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="adress">Адрес</label>
+                        <input class="form-control" type="text" id="adress" data-bind="value: adress" placeholder="Введите адрес" />
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bind="click: $root.confirmDeleteStudent">Удалить</button>
+                <button type="button" class="btn btn-primary" data-bind="click: $root.saveChanges">Сохранить</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
             </div>
         </div>
