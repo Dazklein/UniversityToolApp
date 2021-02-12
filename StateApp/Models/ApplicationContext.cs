@@ -11,9 +11,11 @@ namespace StateApp.Models
     {
         public DbSet<Student> Students { get; set; }
         public DbSet<Group> Groups { get; set; }
-        //public DbSet<Mark> Marks { get; set; }
-        //public DbSet<Discipline> Disciplines { get; set; }
-        //public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<Mark> Marks { get; set; }
+        public DbSet<Discipline> Disciplines { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<Professor> Professors { get; set; }
+        public DbSet<FacultyEmployer> FacultyEmployers { get; set; }
 
         public ApplicationContext()
         {
@@ -54,6 +56,34 @@ namespace StateApp.Models
                     new Group { GroupId = 2, Name = "Г02" },
                     new Group { GroupId = 3, Name = "Г03" }
                 });
+            modelBuilder.Entity<Discipline>().HasData(
+                new Discipline[]
+                {
+                    new Discipline { DisciplineId = 1, Name = "Линейная алгебра", Groups = null, Professors = null },
+                    new Discipline { DisciplineId = 2, Name = "Математический анализ", Groups = null, Professors = null },
+                    new Discipline { DisciplineId = 3, Name = "Философия", Groups = null, Professors = null },
+                    new Discipline { DisciplineId = 4, Name = "Физическая культура", Groups = null, Professors = null },
+                    new Discipline { DisciplineId = 5, Name = "Экономика", Groups = null, Professors = null },
+                    new Discipline { DisciplineId = 6, Name = "Социология", Groups = null, Professors = null },
+                    new Discipline { DisciplineId = 7, Name = "Дискретная математика", Groups = null, Professors = null },
+                    new Discipline { DisciplineId = 8, Name = "История", Groups = null, Professors = null },
+                    new Discipline { DisciplineId = 9, Name = "Иностранный язык", Groups = null, Professors = null }
+                });
+            modelBuilder.Entity<Professor>().HasData(
+                new Professor[]
+                {
+                    new Professor { ProfessorId = 1, LastName = "Павлов", Name = "Сергей", MiddleName = "Павлович", Disciplines = null, Lessons = null, Adress = "Кожевина, 3, 12", Email = "kir3@uni.com", PhoneNumber = "85233495942", Password = "" },
+                    new Professor { ProfessorId = 2, LastName = "Кучкин", Name = "Виталий", MiddleName = "Сергеевич", Disciplines = null, Lessons = null, Adress = "Ленина, 56, 51", Email = "fp3@uni.com", PhoneNumber = "86368759673", Password = "" },
+                    new Professor { ProfessorId = 3, LastName = "Утехин", Name = "Валерий", MiddleName = "Михайлович", Disciplines = null, Lessons = null, Adress = "Булгакова, 1, 1", Email = "kpf@uni.com", PhoneNumber = "895775874932", Password = "" },
+                    new Professor { ProfessorId = 4, LastName = "Пушинская", Name = "Ирина", MiddleName = "Эльдаровна", Disciplines = null, Lessons = null, Adress = "Гагарина, 164, 34", Email = "pczx2@uni.com", PhoneNumber = "89587493746", Password = "" }
+                });
+            modelBuilder.Entity<FacultyEmployer>().HasData(
+                new FacultyEmployer[]
+                {
+                    new FacultyEmployer { FacultyEmployerId = 1, Email = "admin1@uni.com", Password = "admin1", LastName = "Иванов", Name = "Иван", MiddleName = "Иванович", Adress = "Центральная, 1, 12", PhoneNumber = "89477382211" },
+                    new FacultyEmployer { FacultyEmployerId = 2, Email = "admin2@uni.com", Password = "admin2", LastName = "Михаилов", Name = "Михаил", MiddleName = "Михайлович", Adress = "Центральная, 2, 21", PhoneNumber = "89478887732" }
+                }
+                );
         }
     }
 

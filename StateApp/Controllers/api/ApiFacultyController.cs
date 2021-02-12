@@ -91,4 +91,43 @@ namespace StateApp.Controllers.api
             await db.SaveChangesAsync();
         }
     }
+
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ApiDisciplineController : ControllerBase
+    {
+        ApplicationContext db = new ApplicationContext();
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Discipline>>> Get() => new ObjectResult(await db.Disciplines.ToListAsync());
+
+        [HttpPost]
+        public async Task<ActionResult<Discipline>> Post(Discipline discipline)
+        {
+            db.Disciplines.Add(discipline);
+            await db.SaveChangesAsync();
+            return new ObjectResult(await db.Disciplines.Where(x => x.DisciplineId == discipline.DisciplineId).FirstOrDefaultAsync());
+        }
+
+        [HttpPut]
+        public async void Put(Discipline discipline)
+        {
+            db.Disciplines.Update(discipline);
+            await db.SaveChangesAsync();
+        }
+
+        [HttpDelete]
+        public async void Delete(Discipline discipline)
+        {
+            db.Disciplines.Remove(discipline);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    public class ApiProfessorController : ControllerBase
+    {
+        ApplicationContext db = new ApplicationContext();
+
+        public async Task<ActionResult<IEnumerable<Professor>>> Get() => new ObjectResult(await db.Professors.ToListAsync());
+    }
 }

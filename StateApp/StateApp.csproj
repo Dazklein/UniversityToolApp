@@ -9,4 +9,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\Statement\" />
+    <Folder Include="Views\Home\" />
+    <Folder Include="Views\Identity\" />
+  </ItemGroup>
+
 </Project>

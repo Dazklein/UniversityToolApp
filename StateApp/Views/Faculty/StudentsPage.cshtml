@@ -24,6 +24,7 @@
         self.Groups = ko.observableArray([]);
 
         self.currentStudent = ko.observable(null);
+        self.isEditing = ko.observable(false);
 
         getStudents();
         getGroups();
@@ -34,11 +35,13 @@
         }
 
         self.createStudent = function () {
+            self.isEditing(false);
             self.currentStudent(new student);
             $("#editStudentModal").modal('show');
         }
 
         self.editStudent = function () {
+            self.isEditing(true);
             $("#editStudentModal").modal('show');
         }
 
@@ -70,7 +73,7 @@
 
         self.saveChanges = function (student) {
             // Редактирование записи, если она есть
-            if (self.currentStudent.studentId != undefined) {
+            if (self.isEditing != true) {
                 $.ajax({
                     url: "/Api/ApiStudent",
                     method: "PUT",
@@ -78,6 +81,8 @@
                     contentType: "application/json; charset=utf-8",
                     success: function () {
                         var index = self.Students.indexOf(student);
+                        console.log(index);
+                        console.log(student);
                         self.Students[index] = student;
                         $("#editStudentModal").modal('hide');
                     },
